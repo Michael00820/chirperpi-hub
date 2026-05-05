@@ -1,0 +1,21 @@
+{
+  "name": "picomnect-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspaces",
+    "test": "npm run test --workspaces",
+    "test:e2e": "npx playwright test --config playwright.config.ts",
+    "ci": "npm run lint --workspaces && npm run build --workspaces && npm run test --workspaces && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}
