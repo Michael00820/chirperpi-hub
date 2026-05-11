@@ -1,13 +1,9 @@
 import axios from 'axios'
-import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
 import { CommentService } from './commentService'
 import { NotificationService } from './notificationService'
 import { getUserById, updateProfileBalanceCache } from './userService'
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
+import { pool } from '../infrastructure/clients'
 
 const PI_API_BASE_URL = process.env.PI_API_BASE_URL || 'https://api.minepi.com'
 const PI_API_KEY = process.env.PI_API_KEY

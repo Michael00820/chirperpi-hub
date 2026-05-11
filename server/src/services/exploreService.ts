@@ -1,16 +1,6 @@
-import { Pool } from 'pg'
-import { createClient } from 'redis'
 import { PostService } from './postService'
 import { GroupService } from './groupService'
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
-
-const redis = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-})
-redis.connect().catch(console.error)
+import { pool, redisClient as redis } from '../infrastructure/clients'
 
 export interface TrendingTopic {
   tag: string

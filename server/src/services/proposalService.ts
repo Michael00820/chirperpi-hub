@@ -1,11 +1,7 @@
-import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
 import { CreateProposalRequest, Proposal, Vote, CastVoteRequest, ProposalListResult } from '../../../shared/src/auth'
 import { NotificationService } from './notificationService'
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
+import { pool } from '../infrastructure/clients'
 
 export class ProposalService {
   static async createProposal(creatorId: string, data: CreateProposalRequest): Promise<Proposal> {

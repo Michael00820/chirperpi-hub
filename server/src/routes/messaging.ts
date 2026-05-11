@@ -1,7 +1,7 @@
 import { Router, IRouter, Request, Response } from 'express';
-import { Pool } from 'pg';
 import { authenticateToken } from '../middleware/authMiddleware';
 import { MessagingService } from '../services/messagingService';
+import { pool } from '../infrastructure/clients';
 import {
   handleValidationErrors,
   createConversationValidators,
@@ -15,10 +15,6 @@ import {
 } from '../middleware/validators';
 
 const router: IRouter = Router();
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 const messagingService = new MessagingService(pool);
 

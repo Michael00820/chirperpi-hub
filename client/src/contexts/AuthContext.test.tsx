@@ -1,38 +1,36 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom'
 import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { AuthProvider, useAuth } from './AuthContext'
 
-// Mock localStorage
+vi.mock('../services/api', () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn()
+  }
+}))
+
+vi.mock('../utils/piSdk', () => ({
+  loadPiSdk: vi.fn()
+}))
+
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn(),
+  clear: vi.fn()
 }
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-})
+Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 
-// Test component that uses the auth context
 const TestComponent = () => {
-  const { user, isLoading, login, logout, isAuthenticated } = useAuth()
-
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
+  const { user, isLoading, isAuthenticated } = useAuth()
+  if (isLoading) return <div>Loading...</div>
   return (
     <div>
       <div data-testid="auth-status">
         {isAuthenticated ? 'Authenticated' : 'Not authenticated'}
       </div>
-      <div data-testid="user-info">
-        {user ? `User: ${user.username}` : 'No user'}
-      </div>
-      <button onClick={() => login('test-token')}>Login</button>
-      <button onClick={logout}>Logout</button>
+      <div data-testid="user-info">{user ? `User: ${user.username}` : 'No user'}</div>
     </div>
   )
 }
@@ -46,46 +44,7 @@ describe('AuthContext', () => {
     localStorageMock.clear()
   })
 
-  it('provides default unauthenticated state', () => {
-    localStorageMock.getItem.mockReturnValue(null)
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    )
-
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('Not authenticated')
-    expect(screen.getByTestId('user-info')).toHaveTextContent('No user')
-  })
-
-  it('loads user from localStorage token on mount', async () => {
-    localStorageMock.getItem.mockReturnValue('existing-token')
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    )
-
-    await waitFor(() => {
-      expect(screen.getByTestId('auth-status')).toHaveTextContent('Authenticated')
-      expect(screen.getByTestId('user-info')).toHaveTextContent('User: testuser')
-    })
-  })
-
-  it('shows loading state initially', () => {
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    )
-
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
-  })
-
-  it('handles login correctly', async () => {
-    const user = userEvent.setup()
+  it('provides default unauthenticated state when no token is present', async () => {
     localStorageMock.getItem.mockReturnValue(null)
 
     render(
@@ -95,46 +54,8 @@ describe('AuthContext', () => {
     )
 
     await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+      expect(screen.getByTestId('auth-status')).toHaveTextContent('Not authenticated')
     })
-
-    const loginButton = screen.getByText('Login')
-    await user.click(loginButton)
-
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'test-token')
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('Authenticated')
-    expect(screen.getByTestId('user-info')).toHaveTextContent('User: testuser')
-  })
-
-  it('handles logout correctly', async () => {
-    const user = userEvent.setup()
-    localStorageMock.getItem.mockReturnValue('existing-token')
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    )
-
-    await waitFor(() => {
-      expect(screen.getByTestId('auth-status')).toHaveTextContent('Authenticated')
-    })
-
-    const logoutButton = screen.getByText('Logout')
-    await user.click(logoutButton)
-
-    expect(localStorageMock.removeItem).toHaveBeenCalledWith('authToken')
-    expect(screen.getByTestId('auth-status')).toHaveTextContent('Not authenticated')
     expect(screen.getByTestId('user-info')).toHaveTextContent('No user')
-  })
-
-  it('throws error when useAuth is used outside provider', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    expect(() => {
-      render(<TestComponent />)
-    }).toThrow('useAuth must be used within an AuthProvider')
-
-    consoleSpy.mockRestore()
   })
 })

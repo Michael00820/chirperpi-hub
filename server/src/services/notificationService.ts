@@ -1,17 +1,6 @@
-import { Pool } from 'pg'
-import { createClient } from 'redis'
 import webpush from 'web-push'
 import { Notification, NotificationPreferences, NotificationType } from '../../../shared/src/auth'
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-})
-
-redisClient.connect().catch(console.error)
+import { pool, redisClient } from '../infrastructure/clients'
 
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_SUBJECT) {
   webpush.setVapidDetails(

@@ -91,6 +91,10 @@ externalPort = 3000
 localPort = 6379
 externalPort = 3002
 
+[[ports]]
+localPort = 24678
+externalPort = 3003
+
 [deployment]
 deploymentTarget = "autoscale"
 run = ["bash", "-c", "redis-server --daemonize yes; cd server && npm install --legacy-peer-deps && node dist/index.js"]

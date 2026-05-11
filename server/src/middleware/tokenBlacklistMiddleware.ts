@@ -1,10 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createClient } from 'redis';
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-redisClient.connect().catch(console.error);
+import { redisClient } from '../infrastructure/clients';
 
 export const addToBlacklist = async (token: string, expiresIn: number): Promise<void> => {
   try {

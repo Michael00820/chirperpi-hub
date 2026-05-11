@@ -8,8 +8,7 @@ import compression from 'compression';
 import session from 'express-session';
 import ConnectRedis from 'connect-redis';
 import rateLimit from 'express-rate-limit';
-import { createClient } from 'redis';
-import { Pool } from 'pg';
+import { pool, redisClient, getRedis } from './infrastructure/clients';
 import { authRouter } from './routes/auth';
 import { usersRouter } from './routes/users';
 import { postsRouter } from './routes/posts';
@@ -27,21 +26,15 @@ import { requestIdMiddleware } from './middleware/requestIdMiddleware';
 import { requestLoggingMiddleware } from './middleware/requestLoggingMiddleware';
 import { rateLimitHeadersMiddleware } from './middleware/rateLimitHeadersMiddleware';
 import { monitoringRouter } from './routes/monitoring';
+import { statsRouter } from './routes/stats';
 import { PostService } from './services/postService';
 
 dotenv.config();
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000
-});
+export { pool, redisClient };
 
-export const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-redisClient.connect().catch(console.error);
+// Ensure Redis is connected before session store is initialized below.
+getRedis().catch((err) => console.error('Redis connect failed:', err));
 
 initSentry();
 
@@ -101,10 +94,18 @@ app.use(requestLoggingMiddleware);
 // Rate limit headers middleware
 app.use(rateLimitHeadersMiddleware());
 
+const sessionSecret = process.env.SESSION_SECRET || process.env.JWT_SECRET;
+if (!sessionSecret) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('SESSION_SECRET (or JWT_SECRET) must be set in production');
+  }
+  console.warn('SESSION_SECRET not set — using insecure dev fallback. Do not use in production.');
+}
+
 app.use(
   session({
     store: new ConnectRedis({ client: redisClient }),
-    secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'fallback-secret',
+    secret: sessionSecret || 'dev-only-insecure-fallback',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -121,8 +122,19 @@ const csrfMiddleware = csurf({
   ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
 }) as any;
 
+// Routes that legitimately bypass CSRF: payment webhook (HMAC-verified) and
+// auth endpoints used before a CSRF cookie is established (Pi sign-in,
+// refresh, logout, verify).
+const CSRF_BYPASS_PREFIXES = [
+  '/api/transactions/webhook',
+  '/api/auth/pi',
+  '/api/auth/refresh',
+  '/api/auth/logout',
+  '/api/auth/verify'
+];
+
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/transactions/webhook')) {
+  if (CSRF_BYPASS_PREFIXES.some((p) => req.path.startsWith(p))) {
     return next();
   }
   return csrfMiddleware(req, res, next);
@@ -168,6 +180,7 @@ app.use('/api/explore', exploreRouter);
 
 // Monitoring and health check routes
 app.use('/api', monitoringRouter);
+app.use('/api', statsRouter);
 
 app.get('/api/timeline', async (req, res) => {
   try {

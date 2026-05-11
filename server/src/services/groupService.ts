@@ -1,4 +1,3 @@
-import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
 import {
   CreateGroupRequest,
@@ -9,10 +8,7 @@ import {
   GroupInvite,
   PostCard
 } from '../../../shared/src/auth'
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
+import { pool } from '../infrastructure/clients'
 
 export class GroupService {
   static async createGroup(userId: string, data: CreateGroupRequest): Promise<Group> {

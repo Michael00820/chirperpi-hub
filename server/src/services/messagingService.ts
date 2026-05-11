@@ -1,5 +1,4 @@
 import { Pool } from 'pg';
-import { createClient } from 'redis';
 import {
   Conversation,
   Message,
@@ -11,12 +10,7 @@ import {
   PiTransactionData,
   PiPaymentRequestData
 } from '../../../shared/src/auth';
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-
-redisClient.connect().catch(console.error);
+import { redisClient } from '../infrastructure/clients';
 
 export class MessagingService {
   constructor(private pool: Pool) {}

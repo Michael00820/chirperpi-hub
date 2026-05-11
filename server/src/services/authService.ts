@@ -1,13 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { createClient } from 'redis';
 import axios from 'axios';
 import { PiUser, AuthPayload, AuthResponse, SessionData } from '../../../shared/src/auth';
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-
-redisClient.connect().catch(console.error);
+import { redisClient } from '../infrastructure/clients';
 
 export class AuthService {
   static async authenticateWithPi(accessToken: string, _paymentId?: string): Promise<PiUser> {

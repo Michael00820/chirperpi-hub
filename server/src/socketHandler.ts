@@ -4,12 +4,7 @@ import { Pool } from 'pg';
 import { MessagingService } from './services/messagingService';
 import { AuthService } from './services/authService';
 import { ServerToClientEvents, ClientToServerEvents, TypingIndicator, SendMessageRequest } from '../../shared/src/auth';
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-
-redisClient.connect().catch(console.error);
+import { redisClient } from './infrastructure/clients';
 
 // Store user socket IDs for targeting specific users
 const userSockets = new Map<string, Set<string>>();
