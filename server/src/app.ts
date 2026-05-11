@@ -61,7 +61,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173'],
+      connectSrc: ["'self'", process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5000'],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -81,12 +81,13 @@ app.use(helmet({
 app.use(compression());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
   })
 );
+app.use('/api/transactions/webhook', express.raw({ type: 'application/json', limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
@@ -115,12 +116,17 @@ app.use(
   })
 );
 
-app.use(
-  csurf({
-    cookie: false,
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
-  }) as any
-);
+const csrfMiddleware = csurf({
+  cookie: false,
+  ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
+}) as any;
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/transactions/webhook')) {
+    return next();
+  }
+  return csrfMiddleware(req, res, next);
+});
 
 // General API rate limiting (100 requests per minute)
 const apiLimiter = rateLimit({
