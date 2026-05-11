@@ -16,6 +16,7 @@ const MessagingPage = lazy(() => import('./pages/MessagingPage'))
 const ExplorePage = lazy(() => import('./pages/ExplorePage'))
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'))
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'))
+const HomePage = lazy(() => import('./pages/HomePage'))
 
 function App() {
   return (
@@ -38,7 +39,7 @@ function App() {
             <Route path="/proposals/:id" element={<ProposalDetailPage />} />
             <Route path="/proposals/:id/results" element={<ProposalResultsPage />} />
             <Route path="/admin/health" element={<AdminDashboardPage />} />
-            <Route path="/" element={<div className="p-8">Home Page</div>} />
+            <Route path="/" element={<HomePage />} />
           </Routes>
         </Suspense>
       </div>
