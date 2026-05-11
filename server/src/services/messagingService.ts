@@ -2,7 +2,6 @@ import { Pool } from 'pg';
 import { createClient } from 'redis';
 import {
   Conversation,
-  ConversationParticipant,
   Message,
   MessageReaction,
   SendMessageRequest,
@@ -125,7 +124,7 @@ export class MessagingService {
       description: row.description,
       avatarUrl: row.avatar_url,
       participants: row.participants || [],
-      lastMessage: lastMessageResult.rows[0] ? this.formatMessage(lastMessageResult.rows[0]) : undefined,
+      lastMessage: lastMessageResult.rows[0] ? await this.formatMessage(lastMessageResult.rows[0]) : undefined,
       unreadCount: row.unread_count || 0,
       createdAt: row.created_at,
       updatedAt: row.updated_at
@@ -233,26 +232,6 @@ export class MessagingService {
       // Invalidate conversation caches
       await redisClient.del(`conversation:${request.conversationId}:*`)
       await redisClient.del(`conversations:list:*`)
-
-      // Store in Redis cache for quick access
-      await redisClient.publish(`messages:${request.conversationId}`, JSON.stringify({
-        type: 'new_message',
-        data: message
-      }));
-
-      await client.query('COMMIT');
-
-      return this.formatMessage(message);
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-        [request.conversationId]
-      );
 
       // Store in Redis cache for quick access
       await redisClient.publish(`messages:${request.conversationId}`, JSON.stringify({
@@ -431,7 +410,7 @@ export class MessagingService {
     await redisClient.setEx(`user:online:${userId}`, 24 * 60 * 60, 'true');
 
     // Update all user's conversation participants
-    const conversations = await this.pool.query(
+    await this.pool.query(
       `UPDATE conversation_participants SET is_online = true WHERE user_id = $1`,
       [userId]
     );

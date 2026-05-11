@@ -1,7 +1,7 @@
-import { Router, Request, Response } from 'express'
+import { Router, IRouter, Request, Response } from 'express'
 import { ExploreService } from '../services/exploreService'
 
-const router = Router()
+const router: IRouter = Router()
 
 router.get('/', async (req: Request, res: Response) => {
   try {

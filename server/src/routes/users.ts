@@ -1,9 +1,9 @@
-import { Router, Request, Response } from 'express'
+import { Router, IRouter, Request, Response } from 'express'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { getUserByUsername, getUserProfile, updateUserProfile, getUserPosts, followUser, unfollowUser, searchUsers } from '../services/userService'
 import { handleValidationErrors, paginationValidators, searchValidators, userProfileValidators } from '../middleware/validators'
 
-const router = Router()
+const router: IRouter = Router()
 
 // Search users
 router.get('/search', searchValidators, handleValidationErrors, async (req: Request, res: Response) => {

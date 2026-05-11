@@ -124,7 +124,7 @@ export function initializeSocketIO(io: Server, pool: Pool) {
         );
       } catch (error) {
         console.error('Error sending message:', error);
-        socket.emit('error', { message: 'Failed to send message' });
+        socket.emit('error' as any, { message: 'Failed to send message' });
       }
     });
 
@@ -151,7 +151,7 @@ export function initializeSocketIO(io: Server, pool: Pool) {
         }
       } catch (error) {
         console.error('Error adding reaction:', error);
-        socket.emit('error', { message: 'Failed to add reaction' });
+        socket.emit('error' as any, { message: 'Failed to add reaction' });
       }
     });
 
@@ -176,7 +176,7 @@ export function initializeSocketIO(io: Server, pool: Pool) {
         }
       } catch (error) {
         console.error('Error removing reaction:', error);
-        socket.emit('error', { message: 'Failed to remove reaction' });
+        socket.emit('error' as any, { message: 'Failed to remove reaction' });
       }
     });
 
@@ -220,7 +220,8 @@ export function initializeSocketIO(io: Server, pool: Pool) {
 
         socket.to(`conversation:${conversationId}`).emit('typingStop', {
           conversationId,
-          userId
+          userId,
+          user: { id: userId, username: '' }
         });
       } catch (error) {
         console.error('Error clearing typing indicator:', error);

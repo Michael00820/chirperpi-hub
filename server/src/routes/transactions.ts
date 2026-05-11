@@ -1,11 +1,11 @@
-import express, { Request, Response } from 'express'
+import express, { IRouter, Request, Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import crypto from 'crypto'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { TransactionService } from '../services/transactionService'
-import { handleValidationErrors, tipValidators, unlockPostValidators, paginationValidators, validateTransactionId, validateLimit } from '../middleware/validators'
+import {} from '../middleware/validators'
 
-const router = express.Router()
+const router: IRouter = express.Router()
 
 const transactionLimiter = rateLimit({
   windowMs: 60 * 1000,

@@ -63,8 +63,8 @@ export class TransactionService {
 
     try {
       const paymentResult = await this.sendPiPayment(
-        sender.pi_wallet_address,
-        receiver.pi_wallet_address,
+        sender.pi_wallet_address || '',
+        receiver.pi_wallet_address || '',
         amount,
         `${entityType} tip for ${entityId}`
       )
@@ -328,12 +328,12 @@ export class TransactionService {
       )
     }
 
-    await NotificationService.createNotification(
-      transaction.receiverId,
-      transaction.senderId,
-      'pi_transaction',
-      transaction.entityType,
-      transaction.entityId
-    )
+    await NotificationService.createNotification({
+      userId: transaction.receiverId,
+      actorId: transaction.senderId,
+      notificationType: 'pi_transaction',
+      entityType: transaction.entityType,
+      entityId: transaction.entityId
+    })
   }
 }

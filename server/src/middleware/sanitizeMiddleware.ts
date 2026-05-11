@@ -24,7 +24,7 @@ const sanitizeObject = (obj: Record<string, any>): Record<string, any> => {
   }, {} as Record<string, any>);
 };
 
-export const sanitizeRequest = (req: Request, res: Response, next: NextFunction) => {
+export const sanitizeRequest = (req: Request, _res: Response, next: NextFunction) => {
   if (req.body) {
     req.body = sanitizeObject(req.body);
   }

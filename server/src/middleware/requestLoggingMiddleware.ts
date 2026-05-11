@@ -21,7 +21,7 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
       method: req.method,
       path: req.path,
       statusCode,
-      responseTime: `${responseTime}ms`,
+      responseTime,
       userId: req.user?.userId,
       ip: req.ip || req.connection.remoteAddress,
       userAgent: req.get('user-agent')

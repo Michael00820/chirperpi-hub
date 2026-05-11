@@ -1,0 +1,93 @@
+modules = ["nodejs-20", "web", "python-3.11"]
+[agent]
+expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+NODE_ENV = "development"
+PORT = "3001"
+FRONTEND_URL = "http://localhost:5000"
+CLIENT_URL = "http://localhost:5000"
+SERVER_URL = "http://localhost:3001"
+MESSAGING_ENABLED = "true"
+GOVERNANCE_ENABLED = "true"
+TRANSACTIONS_ENABLED = "true"
+GROUPS_ENABLED = "true"
+AUTO_MIGRATE = "true"
+MIN_PI_AMOUNT = "0.01"
+MAX_PI_AMOUNT = "1000"
+TRANSACTION_FEE_PERCENT = "0.05"
+API_RATE_LIMIT_PER_MINUTE = "100"
+AUTH_RATE_LIMIT_PER_MINUTE = "10"
+LOG_LEVEL = "info"
+DEBUG = "false"
+DEV_CORS = "true"
+ALLOW_TEST_DATA = "false"
+SENTRY_ENVIRONMENT = "development"
+PI_PLATFORM_API_URL = "https://api.pi.network/v2"
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = "587"
+EMAIL_FROM = "noreply@chirperpi.com"
+BACKUP_INTERVAL_HOURS = "24"
+AWS_REGION = "us-east-1"
+JWT_SECRET = "253336204ca79d94bf2a15af6dcbc9bdb540d195784ea3b21db49a9147bed5aa"
+JWT_REFRESH_SECRET = "88ea6a4cb0203265195f08201ae4a6f4d1792720ccf4086f824b566e99b84c82"
+CSRF_SECRET = "ef967fa4a1a0bd3fe9c712d79b754e05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend API"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd client && npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "Backend API"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "redis-server --daemonize yes --logfile /tmp/redis.log; sleep 1; cd server && npm run dev"
+waitForPort = 3001
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 6379
+externalPort = 3002
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "redis-server --daemonize yes; cd server && npm install --legacy-peer-deps && node dist/index.js"]
+build = ["bash", "-c", "cd shared && npm install && npm run build && cd ../client && npm install --legacy-peer-deps && npm run build"]

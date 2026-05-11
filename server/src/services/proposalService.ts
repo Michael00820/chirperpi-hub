@@ -1,8 +1,7 @@
 import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
-import { CreateProposalRequest, Proposal, Vote, CastVoteRequest, ProposalListResult } from 'shared/auth'
+import { CreateProposalRequest, Proposal, Vote, CastVoteRequest, ProposalListResult } from '../../../shared/src/auth'
 import { NotificationService } from './notificationService'
-import { getUserById } from './userService'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
@@ -59,6 +58,7 @@ export class ProposalService {
 
       // Create notification for new proposal
       await NotificationService.createNotification({
+        userId: creatorId,
         actorId: creatorId,
         notificationType: 'proposal_created',
         entityType: 'proposal',
@@ -286,6 +286,7 @@ export class ProposalService {
 
       // Create notification
       await NotificationService.createNotification({
+        userId: executorId,
         actorId: executorId,
         notificationType: 'proposal_executed',
         entityType: 'proposal',

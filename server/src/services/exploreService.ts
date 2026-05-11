@@ -83,7 +83,7 @@ export class ExploreService {
       : null
     const interests: string[] = interestsResult?.rows[0]?.interests || []
 
-    const values: any[] = [userId || null, interests, limit]
+    void [userId || null, interests, limit]
 
     if (!userId) {
       const result = await pool.query(

@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import compression from 'compression';
 import session from 'express-session';
-import connectRedis from 'connect-redis';
+import ConnectRedis from 'connect-redis';
 import rateLimit from 'express-rate-limit';
 import { createClient } from 'redis';
 import { Pool } from 'pg';
@@ -45,7 +45,7 @@ redisClient.connect().catch(console.error);
 
 initSentry();
 
-export const app = express();
+export const app: import('express').Application = express();
 
 // Trust proxy - important for production behind reverse proxy
 app.set('trust proxy', 1);
@@ -100,10 +100,9 @@ app.use(requestLoggingMiddleware);
 // Rate limit headers middleware
 app.use(rateLimitHeadersMiddleware());
 
-const RedisStore = connectRedis(session);
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    store: new ConnectRedis({ client: redisClient }),
     secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'fallback-secret',
     resave: false,
     saveUninitialized: false,
@@ -120,7 +119,7 @@ app.use(
   csurf({
     cookie: false,
     ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
-  })
+  }) as any
 );
 
 // General API rate limiting (100 requests per minute)

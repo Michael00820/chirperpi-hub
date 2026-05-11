@@ -8,7 +8,7 @@ import {
   GroupFeed,
   GroupInvite,
   PostCard
-} from '../../shared/src/auth'
+} from '../../../shared/src/auth'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
@@ -245,7 +245,7 @@ export class GroupService {
       client.release()
     }
 
-    return this.getGroupById(groupId, userId)
+    return this.getGroupById(groupId, userId) as Promise<Group>
   }
 
   static async leaveGroup(groupId: string, userId: string): Promise<void> {
@@ -429,7 +429,7 @@ export class GroupService {
     )
   }
 
-  private static groupRowToGroup(row: any, currentUserId?: string): Group {
+  private static groupRowToGroup(row: any, _currentUserId?: string): Group {
     return {
       id: row.id,
       name: row.name,
@@ -482,7 +482,7 @@ export class GroupService {
     }
   }
 
-  private static postRowToCard(row: any, currentUserId?: string): PostCard {
+  private static postRowToCard(row: any, _currentUserId?: string): PostCard {
     return {
       id: row.id,
       userId: row.user_id,

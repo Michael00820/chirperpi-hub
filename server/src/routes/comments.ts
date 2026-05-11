@@ -1,9 +1,9 @@
-import { Router, Request, Response } from 'express'
+import { Router, IRouter, Request, Response } from 'express'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { CommentService } from '../services/commentService'
 import { handleValidationErrors, commentValidators, paginationValidators, validateCommentId } from '../middleware/validators'
 
-const router = Router({ mergeParams: true })
+const router: IRouter = Router({ mergeParams: true })
 
 // Get comments for a post
 router.get('/', paginationValidators, handleValidationErrors, async (req: Request, res: Response) => {

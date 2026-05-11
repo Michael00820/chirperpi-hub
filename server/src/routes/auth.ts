@@ -1,20 +1,20 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, IRouter } from 'express';
 import { body } from 'express-validator';
 import { AuthService } from '../services/authService';
-import { PiAuthRequest, AuthResponse } from '../../../shared/src/auth';
+import { PiAuthRequest } from '../../../shared/src/auth';
 import { authenticateToken } from '../middleware/authMiddleware';
 import { addToBlacklist } from '../middleware/tokenBlacklistMiddleware';
 import { handleValidationErrors } from '../middleware/validators';
 import jwt from 'jsonwebtoken';
 
-const router = Router();
+const router: IRouter = Router();
 
 // Pi Network authentication endpoint
 router.post(
   '/pi',
   body('accessToken').isString().notEmpty().withMessage('Access token is required'),
   handleValidationErrors,
-  async (req: Request, res: Response<AuthResponse>) => {
+  async (req: Request, res: Response) => {
   try {
     const { accessToken, paymentId }: PiAuthRequest = req.body;
 
@@ -57,8 +57,7 @@ router.post(
       });
 
       return res.json({
-        ...authResponse,
-        expiresIn: 15 * 60 * 1000 // 15 minutes in milliseconds
+        ...authResponse
       });
     }
 

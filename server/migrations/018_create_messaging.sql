@@ -141,39 +141,39 @@ ALTER TABLE message_payment_requests ENABLE ROW LEVEL SECURITY;
 -- RLS Policies for conversations
 CREATE POLICY conversations_select ON conversations FOR SELECT
     USING (
-        created_by = CURRENT_USER_ID() OR
+        created_by = current_setting('app.current_user_id', true)::UUID OR
         id IN (
             SELECT conversation_id FROM conversation_participants 
-            WHERE user_id = CURRENT_USER_ID()
+            WHERE user_id = current_setting('app.current_user_id', true)::UUID
         )
     );
 
 CREATE POLICY conversations_insert ON conversations FOR INSERT
-    WITH CHECK (created_by = CURRENT_USER_ID());
+    WITH CHECK (created_by = current_setting('app.current_user_id', true)::UUID);
 
 CREATE POLICY conversations_update ON conversations FOR UPDATE
     USING (
-        created_by = CURRENT_USER_ID() OR
+        created_by = current_setting('app.current_user_id', true)::UUID OR
         id IN (
             SELECT conversation_id FROM conversation_participants 
-            WHERE user_id = CURRENT_USER_ID() AND role = 'admin'
+            WHERE user_id = current_setting('app.current_user_id', true)::UUID AND role = 'admin'
         )
     );
 
 -- RLS Policies for conversation participants
 CREATE POLICY conversation_participants_select ON conversation_participants FOR SELECT
     USING (
-        user_id = CURRENT_USER_ID() OR
+        user_id = current_setting('app.current_user_id', true)::UUID OR
         conversation_id IN (
-            SELECT id FROM conversations WHERE created_by = CURRENT_USER_ID()
+            SELECT id FROM conversations WHERE created_by = current_setting('app.current_user_id', true)::UUID
         )
     );
 
 CREATE POLICY conversation_participants_insert ON conversation_participants FOR INSERT
     WITH CHECK (
         conversation_id IN (
-            SELECT id FROM conversations WHERE created_by = CURRENT_USER_ID()
-        ) OR user_id = CURRENT_USER_ID()
+            SELECT id FROM conversations WHERE created_by = current_setting('app.current_user_id', true)::UUID
+        ) OR user_id = current_setting('app.current_user_id', true)::UUID
     );
 
 -- RLS Policies for messages
@@ -181,25 +181,25 @@ CREATE POLICY conversation_messages_select ON conversation_messages FOR SELECT
     USING (
         conversation_id IN (
             SELECT conversation_id FROM conversation_participants 
-            WHERE user_id = CURRENT_USER_ID()
+            WHERE user_id = current_setting('app.current_user_id', true)::UUID
         )
     );
 
 CREATE POLICY conversation_messages_insert ON conversation_messages FOR INSERT
     WITH CHECK (
-        sender_id = CURRENT_USER_ID() AND
+        sender_id = current_setting('app.current_user_id', true)::UUID AND
         conversation_id IN (
             SELECT conversation_id FROM conversation_participants 
-            WHERE user_id = CURRENT_USER_ID()
+            WHERE user_id = current_setting('app.current_user_id', true)::UUID
         )
     );
 
 CREATE POLICY conversation_messages_update ON conversation_messages FOR UPDATE
     USING (
-        sender_id = CURRENT_USER_ID() OR
+        sender_id = current_setting('app.current_user_id', true)::UUID OR
         conversation_id IN (
             SELECT conversation_id FROM conversation_participants 
-            WHERE user_id = CURRENT_USER_ID() AND role = 'admin'
+            WHERE user_id = current_setting('app.current_user_id', true)::UUID AND role = 'admin'
         )
     );
 
@@ -210,7 +210,7 @@ CREATE POLICY message_reactions_all ON message_reactions FOR ALL
             SELECT id FROM conversation_messages 
             WHERE conversation_id IN (
                 SELECT conversation_id FROM conversation_participants 
-                WHERE user_id = CURRENT_USER_ID()
+                WHERE user_id = current_setting('app.current_user_id', true)::UUID
             )
         )
     );
@@ -222,19 +222,19 @@ CREATE POLICY message_read_receipts_select ON message_read_receipts FOR SELECT
             SELECT id FROM conversation_messages 
             WHERE conversation_id IN (
                 SELECT conversation_id FROM conversation_participants 
-                WHERE user_id = CURRENT_USER_ID()
+                WHERE user_id = current_setting('app.current_user_id', true)::UUID
             )
         )
     );
 
 CREATE POLICY message_read_receipts_insert ON message_read_receipts FOR INSERT
     WITH CHECK (
-        user_id = CURRENT_USER_ID() AND
+        user_id = current_setting('app.current_user_id', true)::UUID AND
         message_id IN (
             SELECT id FROM conversation_messages 
             WHERE conversation_id IN (
                 SELECT conversation_id FROM conversation_participants 
-                WHERE user_id = CURRENT_USER_ID()
+                WHERE user_id = current_setting('app.current_user_id', true)::UUID
             )
         )
     );
@@ -265,7 +265,7 @@ SELECT
         SELECT COUNT(*) FROM conversation_messages
         WHERE conversation_id = p_conversation_id
         AND is_read = false
-        AND sender_id != CURRENT_USER_ID()
+        AND sender_id != current_setting('app.current_user_id', true)::UUID
     )
 FROM conversations c
 LEFT JOIN LATERAL (

@@ -2,12 +2,12 @@
  * Health check and monitoring endpoints
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, IRouter, Request, Response } from 'express';
 import { pool } from '../app';
 import { authenticateToken } from '../middleware/authMiddleware';
 import { logger } from '../utils/logger';
 
-export const monitoringRouter = Router();
+export const monitoringRouter: IRouter = Router();
 
 /**
  * Public health check endpoint
@@ -69,7 +69,7 @@ monitoringRouter.get('/health/admin', authenticateToken, async (req: Request, re
 
     // Fetch system stats
     const [
-      dbHealth,
+      _dbHealth,
       totalUsers,
       totalPosts,
       totalGroups,

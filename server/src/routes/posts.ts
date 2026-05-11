@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, IRouter, Request, Response } from 'express'
 import multer from 'multer'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { handleValidationErrors, postCreationValidators, searchValidators, validateLimit } from '../middleware/validators'
@@ -6,7 +6,7 @@ import { PostService } from '../services/postService'
 import { uploadToPinata } from '../services/mediaService'
 import { commentsRouter } from './comments'
 
-const router = Router()
+const router: IRouter = Router()
 const upload = multer({ storage: multer.memoryStorage() })
 
 // Mount comments router

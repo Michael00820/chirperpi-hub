@@ -204,6 +204,18 @@ export const searchValidators = [
 ];
 
 // Additional parameter and body validators for other routes
+export const validateGroupId = param('groupId')
+  .isUUID(4)
+  .withMessage('Invalid group ID format');
+
+export const validateMemberId = param('memberId')
+  .isUUID(4)
+  .withMessage('Invalid member ID format');
+
+export const validateProposalId = param('id')
+  .isUUID(4)
+  .withMessage('Invalid proposal ID format');
+
 export const validateInviteCode = param('inviteCode')
   .trim()
   .isLength({ min: 6, max: 32 })

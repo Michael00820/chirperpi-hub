@@ -16,6 +16,7 @@ interface User {
   verification_status: string
 }
 
+// @ts-ignore
 interface Profile {
   id: string
   user_id: string
@@ -258,10 +259,10 @@ export const getUserPosts = async (userId: string, page: number, limit: number):
   return result.rows.map(row => ({
     id: row.id,
     content: row.content,
-    mediaUrls: row.media_urls,
-    createdAt: row.created_at,
-    likesCount: parseInt(row.likes_count),
-    commentsCount: parseInt(row.comments_count)
+    media_urls: row.media_urls,
+    created_at: row.created_at,
+    likes_count: parseInt(row.likes_count),
+    comments_count: parseInt(row.comments_count)
   }))
 }
 

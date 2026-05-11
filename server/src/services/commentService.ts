@@ -1,6 +1,6 @@
 import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
-import { Comment } from '../../shared/src/auth'
+import { Comment } from '../../../shared/src/auth'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL

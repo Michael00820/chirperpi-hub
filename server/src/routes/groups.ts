@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, IRouter, Request, Response } from 'express'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { GroupService } from '../services/groupService'
 import {
@@ -14,7 +14,7 @@ import {
   validateSearchQuery
 } from '../middleware/validators'
 
-const router = Router()
+const router: IRouter = Router()
 
 // Discover groups
 router.get('/discover', validateSearchQuery, paginationValidators, handleValidationErrors, async (req: Request, res: Response) => {

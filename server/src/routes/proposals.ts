@@ -1,12 +1,12 @@
-import express, { Request, Response } from 'express'
+import express, { IRouter, Request, Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { ProposalService } from '../services/proposalService'
 import { VotingService } from '../services/votingService'
-import { CreateProposalRequest, CastVoteRequest } from 'shared/auth'
+import { CreateProposalRequest, CastVoteRequest } from '../../../shared/src/auth'
 import { handleValidationErrors, proposalCreationValidators, castVoteValidators, validateProposalId } from '../middleware/validators'
 
-const router = express.Router()
+const router: IRouter = express.Router()
 
 const proposalLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -122,8 +122,8 @@ router.post('/:id/execute', authenticateToken, async (req: Request, res: Respons
   } catch (error) {
     console.error('Execute proposal error:', error)
 
-    if (error.message.includes('cannot be executed')) {
-      return res.status(400).json({ error: error.message })
+    if ((error as Error).message.includes('cannot be executed')) {
+      return res.status(400).json({ error: (error as Error).message })
     }
 
     res.status(500).json({ error: 'Failed to execute proposal' })

@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, IRouter, Request, Response } from 'express';
 import { Pool } from 'pg';
 import { authenticateToken } from '../middleware/authMiddleware';
 import { MessagingService } from '../services/messagingService';
@@ -10,12 +10,11 @@ import {
   validateConversationId,
   validateMessageId,
   validateSearchQuery,
-  paginationValidators,
   validateLimit,
   validateOffset
 } from '../middleware/validators';
 
-const router = Router();
+const router: IRouter = Router();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

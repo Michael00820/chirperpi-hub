@@ -1,13 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { createClient } from 'redis';
-import { PiNetwork } from '@pi-network/api';
+import axios from 'axios';
 import { PiUser, AuthPayload, AuthResponse, SessionData } from '../../../shared/src/auth';
-
-const piNetwork = new PiNetwork({
-  apiKey: process.env.PI_API_KEY!,
-  secret: process.env.PI_SECRET!,
-  platformApiUrl: process.env.PI_PLATFORM_API_URL!
-});
 
 const redisClient = createClient({
   url: process.env.REDIS_URL || 'redis://localhost:6379'
@@ -16,10 +10,21 @@ const redisClient = createClient({
 redisClient.connect().catch(console.error);
 
 export class AuthService {
-  static async authenticateWithPi(accessToken: string, paymentId?: string): Promise<PiUser> {
+  static async authenticateWithPi(accessToken: string, _paymentId?: string): Promise<PiUser> {
     try {
-      const piUser = await piNetwork.authenticate(accessToken, paymentId);
-      return piUser;
+      const platformApiUrl = process.env.PI_PLATFORM_API_URL || 'https://api.pi.network/v2';
+      const response = await axios.get(`${platformApiUrl}/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Pi-App-Id': process.env.PI_API_KEY || ''
+        }
+      });
+      const data = response.data;
+      return {
+        uid: data.uid,
+        username: data.username,
+        accessToken
+      };
     } catch (error) {
       throw new Error('Pi Network authentication failed');
     }

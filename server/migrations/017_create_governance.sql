@@ -50,23 +50,23 @@ ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
 
 -- Proposals are visible to all authenticated users
 CREATE POLICY "Proposals are viewable by authenticated users" ON proposals
-    FOR SELECT USING (auth.uid() IS NOT NULL);
+    FOR SELECT USING (current_setting('app.current_user_id', true) IS NOT NULL);
 
 -- Users can create proposals
 CREATE POLICY "Users can create proposals" ON proposals
-    FOR INSERT WITH CHECK (auth.uid() = creator_id);
+    FOR INSERT WITH CHECK (current_setting('app.current_user_id', true)::UUID = creator_id);
 
 -- Only creators can update their draft proposals
 CREATE POLICY "Creators can update draft proposals" ON proposals
-    FOR UPDATE USING (auth.uid() = creator_id AND status = 'draft');
+    FOR UPDATE USING (current_setting('app.current_user_id', true)::UUID = creator_id AND status = 'draft');
 
 -- Votes are viewable by authenticated users
 CREATE POLICY "Votes are viewable by authenticated users" ON votes
-    FOR SELECT USING (auth.uid() IS NOT NULL);
+    FOR SELECT USING (current_setting('app.current_user_id', true) IS NOT NULL);
 
 -- Users can insert their own votes
 CREATE POLICY "Users can cast votes" ON votes
-    FOR INSERT WITH CHECK (auth.uid() = voter_id);
+    FOR INSERT WITH CHECK (current_setting('app.current_user_id', true)::UUID = voter_id);
 
 -- Function to calculate proposal results
 CREATE OR REPLACE FUNCTION calculate_proposal_results(proposal_uuid UUID)

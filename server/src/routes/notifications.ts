@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, IRouter, Request, Response } from 'express'
 import { authenticateToken } from '../middleware/authMiddleware'
 import { NotificationService } from '../services/notificationService'
 import {
@@ -10,7 +10,7 @@ import {
   validateNotificationId
 } from '../middleware/validators'
 
-const router = Router()
+const router: IRouter = Router()
 
 router.get('/', authenticateToken, paginationValidators, handleValidationErrors, async (req: Request, res: Response) => {
   try {

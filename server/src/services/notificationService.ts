@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 import { createClient } from 'redis'
 import webpush from 'web-push'
-import { Notification, NotificationPreferences, NotificationType } from '../../shared/src/auth'
+import { Notification, NotificationPreferences, NotificationType } from '../../../shared/src/auth'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
@@ -49,7 +49,7 @@ export class NotificationService {
     let notificationId: string
     let groupCount = 1
 
-    if (existing.rowCount > 0) {
+    if ((existing.rowCount ?? 0) > 0) {
       notificationId = existing.rows[0].id
       groupCount = existing.rows[0].group_count + 1
       await pool.query(

@@ -32,7 +32,7 @@ export class VotingService {
       const user = userResult.rows[0]
 
       // Create the message that was signed
-      const message = `Vote on proposal ${proposalId} for option ${optionId} by ${user.username}`
+      void `Vote on proposal ${proposalId} for option ${optionId} by ${user.username}`
 
       // In a real Pi Network integration, you would:
       // 1. Call Pi Network's verification API
@@ -92,7 +92,7 @@ export class VotingService {
       'trusted': 2.0
     }
 
-    const multiplier = multipliers[profile.verification_status] || 1.0
+    const multiplier = multipliers[profile.verification_status as keyof typeof multipliers] || 1.0
     return baseWeight * multiplier
   }
 
