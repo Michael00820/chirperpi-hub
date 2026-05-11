@@ -3,21 +3,20 @@ export function registerServiceWorker() {
     return
   }
 
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.log('Service worker registered:', registration.scope)
-      })
-      .catch((error) => {
-        console.warn('Service worker registration failed:', error)
-      })
+  // Kill switch: aggressively unregister any existing service workers and clear
+  // all caches on every load. This recovers users stuck on a previously-cached
+  // broken HTML shell. The SW is not currently needed for core functionality.
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => {
+      registration.unregister().catch(() => undefined)
+    })
   })
 
-  let reloading = false
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return
-    reloading = true
-    window.location.reload()
-  })
+  if (typeof caches !== 'undefined') {
+    caches.keys().then((keys) => {
+      keys.forEach((key) => {
+        caches.delete(key).catch(() => undefined)
+      })
+    })
+  }
 }
