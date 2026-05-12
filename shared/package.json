@@ -7,8 +7,10 @@
     "./auth": "./dist/auth.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+  "build": "tsc",
+  "dev": "tsc --watch",
+  "test": "echo \"No tests yet\"",
+  "lint": "echo \"No lint configured\""
   },
   "devDependencies": {
     "typescript": "^5.3.3"
