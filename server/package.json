@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "migrate": "tsx src/db/migrate.ts",
     "test": "jest",
-    "test:integration": "jest --runInBand"
+    "test:integration": "jest --runInBand",
     "lint": "echo \"No lint configured\""
   },
   "dependencies": {
